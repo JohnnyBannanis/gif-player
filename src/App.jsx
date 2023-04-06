@@ -9,10 +9,10 @@ function App() {
   const [pixels, setPixels] = useState(null)
   const [overlaped, setOverlaped] = useState(null)
 
-  const [checked, setChecked] = useState(false);
+  const [stacked, setStacked] = useState(false);
 
   function handleCheckboxChange(event){
-    setChecked(event.target.checked);
+    setStacked(event.target.checked);
   };
 
 
@@ -54,6 +54,22 @@ function App() {
     setOverlaped(pxl)
   }
 
+  function defaultStack(ext){
+    //checks if first frame is al full image or have any trnaparency
+    const firsFrame = ext.data[0]
+    for (let i = 0; i < firsFrame.length; i += 4) {
+      const r = i;
+      const g = i + 1;
+      const b = i + 2;
+      const a = i + 3;
+      if (firsFrame[a] === 0) {     
+        setStacked(false);
+        return;
+      }
+    }
+    setStacked(true);
+  }
+
   function extractPixels(){
     getPixels(gifUrl, (err, pixels) => {
       if (err) {
@@ -78,6 +94,7 @@ function App() {
       }
       setPixels(ext);
       overlapPixels(ext);
+      defaultStack(ext);
     });
   }
 
@@ -104,7 +121,7 @@ function App() {
           </div>
           <div>
             {!pixels && <button onClick={extractPixels}>PROCESS</button>}
-            <input id='stack' type="checkbox" checked={checked} onChange={handleCheckboxChange } />
+            <input id='stack' type="checkbox" checked={stacked} onChange={handleCheckboxChange } />
             <label htmlFor="stack" accessKey='s'>Stack Frames</label>
           </div>
           <div>
@@ -115,11 +132,11 @@ function App() {
               <h1>SLIDER</h1>
             </div>
             <div>
-              {checked ? overlaped && <SliderCanvas pixels={overlaped}/> 
+              {stacked ? overlaped && <SliderCanvas pixels={overlaped}/> 
                 : pixels && <SliderCanvas pixels={pixels}/>}
             </div>
             <h1>FRAMES</h1>
-              {checked ? overlaped && overlaped.data.map((frame,index) => 
+              {stacked ? overlaped && overlaped.data.map((frame,index) => 
                 <PixelCanvas key={index} pixels={frame} height={overlaped.height} width={overlaped.width} />)
               :pixels && pixels.data.map((frame,index) => 
                 <PixelCanvas key={index} pixels={frame} height={pixels.height} width={pixels.width} />)
