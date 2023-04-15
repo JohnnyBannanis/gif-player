@@ -5,12 +5,12 @@ function SliderCanvas({ pixels }) {
   const [frame, setFrame] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loop, setLoop] = useState(false);
+  const [speed, setSpeed] = useState(30);
 
   useEffect(() => {
     let interval;
     if (isPlaying) {
       interval = setInterval(() => {
-        console.log(frame)
         if (frame < pixels.frames - 1) {
           setFrame(frame => frame + 1);
         }else if (loop){
@@ -18,7 +18,7 @@ function SliderCanvas({ pixels }) {
         }else{
           handlePlayPause()
         }
-      }, 40);
+      }, (1000/speed) );
     }
     return () => {
       clearInterval(interval);
@@ -40,6 +40,10 @@ function SliderCanvas({ pixels }) {
     setFrame(parseInt(event.target.value));
   };
 
+  const handleSpeed = (event) => {
+    setSpeed(parseInt(event.target.value));
+  };
+
   return (
     <>
     <div>
@@ -47,8 +51,9 @@ function SliderCanvas({ pixels }) {
     </div>
     <div>
       <button onClick={handlePlayPause}>{isPlaying ? 'Pause' : 'Start'}</button>
-      <label htmlFor="loop" accessKey='s'>LOOP</label>
+      <input type="range" min="1" max="100" value={speed} onChange={handleSpeed}></input>
       <input id='loop' type="checkbox" checked={loop} onChange={handleLoop} />
+      <label htmlFor="loop" accessKey='s'>LOOP</label>
       <input type="range" min="0" max={pixels.frames - 1} value={frame} onChange={handleSlider} style={ {width:"25%"} }></input>
     </div>
     </>
